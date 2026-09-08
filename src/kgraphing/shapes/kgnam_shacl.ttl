@@ -11,7 +11,6 @@
 # for any ingestion that includes naming (consider mappings though, which might arrive through a different
 # channel )
 kgnam:NamedObjectShape a sh:NodeShape;
-    #sh:targetSubjectsOf rdf:type ;
     sh:targetClass kgnam:NamedObject ;
     sh:nodeKind sh:IRI ;
     sh:property kgnam:FullyQualifiedNamePropertyShape ;
