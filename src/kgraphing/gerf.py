@@ -1,7 +1,7 @@
 """Utility for converting rdflib graphs into dictionary
 representations, and (at some point in the future) back again."""
 
-from typing import Optional, Self
+from typing import Optional, Self, Any
 from dataclasses import dataclass, asdict, field
 import json
 import uuid
@@ -20,21 +20,23 @@ from urllib.error import HTTPError, URLError
 from owlrl import DeductiveClosure, RDFS_Semantics
 
 from kgraphing.ocache import OntologyCache
+from kgraphing.declarations import KGNAM
 
 
 
 @dataclass(kw_only=True)
-class Thing:
+class GerfThing:
     identifier: Node
     full_name: Optional[str] = None
     short_name: Optional[str] = None
+    gerf_object : Any
 
     def to_dict(self):
         return asdict(self)
 
 
 @dataclass(kw_only=True)
-class ObservedRelationClass(Thing):
+class ObservedRelationClass(GerfThing):
     """The ObservedRelationClass class collates information about
     how a Relation is used within a given context (graph).
     This can be compared against expected usage for validation
@@ -53,7 +55,7 @@ class ObservedRelationClass(Thing):
 
 
 @dataclass(kw_only=True)
-class ObservedEntity(Thing):
+class ObservedEntity(GerfThing):
     """The ObservedEntity class collates information about
     entities observed within a given context and stores
     meta-data collected about them.
@@ -84,19 +86,49 @@ class ObservedEntity(Thing):
     def to_dict(self):
         return {**super().to_dict(), **{"term": self.term}}
 
+    def html_stub(self):
+        # Define a common, reusable header that can be emitted when requested that represents 
+        # this thing - Often, it will be a simple <a href> element - but where the object is
+        # more interesting (e.g. a list) then returned content might be more involved.
+
+        # Later, we might swap in some kind of configuration options to help control this
+        # representation/emission on a more modular "plugin" basis. e.g. 
+        label = None
+        if isinstance(self.identifier, (URIRef, BNode)):
+            label_set = self.interactions.get(RDFS.label, set())
+            name_set = self.interactions.get(KGNAM.Name, set())
+            fqn_name_set = self.interactions.get(KGNAM.FullyQualifiedName, set())
+            type_set = self.interactions.get(RDF.type, set())
+            for s in [label_set, name_set, fqn_name_set]:
+                if len(s)>0:
+                    label = next(iter(s))
+                    break
+            if label is None:
+                label = self.identifier.n3(namespace_manager=self.gerf_object.total_graph.namespace_manager)
+            return f"<a href={str(self.identifier)}>{label}</a>"
+        elif isinstance(self.identifier, Literal):
+            return str(self.identifier.toPython())
+
+
     def to_html(self):
         rows = []
         for k, v_set in self.interactions.items():
             for e, v in enumerate(v_set):
+                v_stub = self.gerf_object.entities.get(self.identifier, 
+                                                       ObservedEntity(identifier=None, 
+                                                                      order=None, 
+                                                                      gerf_object=self)
+                                                                      ).html_stub()
+
                 if e == 0:
                     rows.append(f"""<tr>
                                     <td rowspan="{len(v_set)}">{str(k)}</td>
-                                    <td> {str(v)} </td>
+                                    <td> {v_stub} </td>
                                 </tr>
                                 """)
                 else:
                     rows.append(f"""<tr>
-                                    <td> {str(v)} </td>
+                                    <td> {v_stub} </td>
                                 </tr>
                                 """)
 
@@ -223,7 +255,7 @@ class Gerf:
             self.entities[s]._observed_outgoing_relations.add(p)
             self.entities[s]._observed_rdf_terms.add(type(s))
         else:
-            s_ent = ObservedEntity(identifier=s, order=order)
+            s_ent = ObservedEntity(identifier=s, order=order, gerf_object=self)
             self.entities[s] = s_ent
             self.entities[s]._observed_outgoing_relations.add(p)
             self.entities[s]._observed_rdf_terms.add(type(s))
@@ -233,7 +265,7 @@ class Gerf:
         # Process the object - o
 
         if o not in self.entities:
-            o_ent = ObservedEntity(identifier=o, order=order)
+            o_ent = ObservedEntity(identifier=o, order=order, gerf_object=self)
             self.entities[o] = o_ent
 
         if p == RDF.type:
@@ -259,7 +291,7 @@ class Gerf:
                 self.relations[p]._observed_rdf_subject_terms.add(type(s))
                 self.relations[p]._observed_rdf_object_terms.add(type(o))
         else:
-            o_rel = ObservedRelationClass(identifier=p, order=order)
+            o_rel = ObservedRelationClass(identifier=p, order=order, gerf_object=self)
             self.relations[p] = o_rel
             self.relations[p]._observed_rdf_subject_terms.add(type(s))
             self.relations[p]._observed_rdf_object_terms.add(type(o))
@@ -396,7 +428,10 @@ class Gerf:
         tree of parent super-classes for this class definition"""
         if super_class_set is None:
             super_class_set=set()
-        class_enitiy_object = self.entities.get(class_entity, ObservedEntity(identifier=None, order=None))
+        class_enitiy_object = self.entities.get(class_entity, 
+                                                ObservedEntity(
+                                                    identifier=None, 
+                                                    order=None, gerf_object=self))
         immediate_super_classes = class_enitiy_object.interactions.get(RDFS.subClassOf, set())
         for sup in immediate_super_classes:
             super_class_set.add(sup)
@@ -407,7 +442,12 @@ class Gerf:
                                                  entity,
                                                  order:int):
         
-        entity_classes = self.entities.get(entity, ObservedEntity(identifier=None, order=None)).interactions.get(RDF.type, set())
+        entity_classes = self.entities.get(entity, 
+                                           ObservedEntity(
+                                               identifier=None, 
+                                                order=None, 
+                                                gerf_object=self)
+                                            ).interactions.get(RDF.type, set())
         super_class_set=set()
         for e_class in entity_classes:
             super_class_set = super_class_set.union(self._get_super_classes_of_class(e_class, None))

@@ -12,7 +12,7 @@ def test_serialise_testthings_mapping_fqn_tree(kgp_pipeline_for_testthings):
         'ComponentBPackage': 'EntityTypeA',
         'AssemblyDocument': 'Namespace'}
 
-def test_serialise_testthings_mapping_fqn_tree(kgp_pipeline_for_testthings, test_things_data_df):
+def test_serialise_testthings_mapping_fqn_tree_additional_tests(kgp_pipeline_for_testthings, test_things_data_df):
     rdfgraph = kgp_pipeline_for_testthings.process(test_things_data_df)
     list_heads = list(rdfgraph.query("""
                     SELECT ?head ?label WHERE {

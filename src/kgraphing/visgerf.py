@@ -73,7 +73,7 @@ class VisGerf:
 
     @staticmethod
     def _default_include_node_function(gerf_object, identifier):
-        empty_node=ObservedEntity(identifier=None, order=None)
+        empty_node=ObservedEntity(identifier=None, order=None, gerf_object=gerf_object)
         test_node = gerf_object.entities.get(identifier, empty_node)
         tests = [
                 test_node.identifier in gerf_object.entities.keys(), 
@@ -110,7 +110,7 @@ class VisGerf:
     @staticmethod
     def _default_node_properties_function(gerf_object, identifier):
         property_dict = {}
-        EmptyObject = ObservedEntity(identifier=None, order=None)
+        EmptyObject = ObservedEntity(identifier=None, order=None, gerf_object=gerf_object)
         property_dict['label']=str(next(iter(gerf_object.entities.get(identifier, EmptyObject).interactions.get(RDFS.label,{identifier.n3(namespace_manager=gerf_object.source_graph.namespace_manager)}))))
         property_dict['click']=gerf_object.entities.get(identifier, EmptyObject).to_html()
         
@@ -120,7 +120,7 @@ class VisGerf:
     def _default_edge_properties_function(gerf_object, identifier, predicate, element):
         # Need to trim relations that are duplicated due to subclassed relation-definitions
         property_dict = {}
-        EmptyObject = ObservedEntity(identifier=None, order=None)
+        EmptyObject = ObservedEntity(identifier=None, order=None, gerf_object=gerf_object)
         relation_def = gerf_object.entities.get(predicate, EmptyObject)
         property_dict['label']=predicate.n3(namespace_manager=gerf_object.source_graph.namespace_manager)
         property_dict['click']=relation_def.to_html()
