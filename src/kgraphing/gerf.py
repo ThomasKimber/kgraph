@@ -114,7 +114,7 @@ class ObservedEntity(GerfThing):
         rows = []
         for k, v_set in self.interactions.items():
             for e, v in enumerate(v_set):
-                v_stub = self.gerf_object.entities.get(self.identifier, 
+                v_stub = self.gerf_object.entities.get(v, 
                                                        ObservedEntity(identifier=None, 
                                                                       order=None, 
                                                                       gerf_object=self)
