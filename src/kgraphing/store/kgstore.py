@@ -65,7 +65,7 @@ class KGStore:
         # The sparql method returns only those graphs that contain
         # at least one triple.
         sparql_q = """SELECT distinct ?g 
-        WHERE { GRAPH ?g { ?s ?p ?o } }"""
+        WHERE { GRAPH ?g { ?s ?p ?o. } }"""
 
         return [r.get("g") for r in self.dataset.query(sparql_q)]
 
