@@ -872,9 +872,6 @@ class PropertyInstanceSpecification(SchemaMappingInstanceSpecification):
         candidate_subject_spec = self.parent_SchemaMapping.traverse_hierarchy_path(
             self._subject__column
         )
-        # How many fqns are possible here?
-        print(f"specs-count:{len(candidate_subject_spec)}, spec: {candidate_subject_spec}")
-
         # Get the FQNs from the data row - but these can be tricky in that if no match for the
         # root of the FQN is found,
         # it still shows, but with element[0] being empty
