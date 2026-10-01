@@ -229,9 +229,6 @@ class SchemaMapping:
         self.populate_entity_fqn_index(raw_graph)
         triple_generating_objects = list(self.entity_fqn_index.values())
 
-        for k,v in self.entity_fqn_index.items():
-            print(f"{k}:{v.uri}")
-
         # Here there's an opportunity to review the formation of the triple_generating_objects
         # To determine whether all/any namespace hierarchies are fully populated.
         # i.e. That if a namespace is inferred anywhere in any of the FullyQualifiedNames used to
@@ -242,7 +239,6 @@ class SchemaMapping:
             for n in triple_generating_objects
             for q in collate_fqn_parents(n.fully_qualified_name)
         }
-        print(":", raw_fqn_parents)
         nameless_parents = [
             p for p in raw_fqn_parents if p not in self.entity_fqn_index.keys()
         ]
@@ -255,7 +251,6 @@ class SchemaMapping:
             # For each object, create a link to the isScopedWithin object that acts as its parent
             o_parent = self.entity_fqn_index.get(o.parent_fqn, None)
             if o_parent is not None:
-                print(f"possible parent for {fqn}: {o_parent}")
                 scope_r = RelationObject(o, o_parent, KGNAM.isScopedWithin)
                 triple_generating_objects.extend([scope_r])
             else:
@@ -264,10 +259,7 @@ class SchemaMapping:
                     + f"parent {o.parent_fqn} - doesn't exist in file"
                 )
 
-        for k,v in self.entity_fqn_index.items():
-            print(f"{k}:{v.uri}")
-
-        
+       
         # Once the entities are defined, next it's time to link them all via the various
         # relationship linkages
         for datarow in [
@@ -287,9 +279,6 @@ class SchemaMapping:
                         )
                     )
 
-        for k,v in self.entity_fqn_index.items():
-            print(f"{k}:{v.uri}")
-                  
         collection_assignments_triples = []
         for datarow in [
                     r[0] for r in raw_graph.triples((None, RDF.type, SchemaMapping.DATA["row"]))
@@ -649,14 +638,6 @@ class NamedObjectInstanceSpecification(SchemaMappingInstanceSpecification):
 
         # Get the list possible objects for which we want to do some list assignment: 
 
-        print(
-            row_uri,self.naming_hierarchy_path
-        )
-
-        print( SchemaMappingInstanceSpecification.extract_valid_fqns(
-                                row_uri, data_graph, self.naming_hierarchy_path
-                                ) )
-
         assignment_heads = []
 
         for n in SchemaMappingInstanceSpecification.extract_valid_fqns(
@@ -829,12 +810,12 @@ class RelationshipInstanceSpecification(SchemaMappingInstanceSpecification):
         # possibilities
         relations = list(product(*[subject_entities, object_entities]))
         relation_list = []
-        print (f"Relations Input Length: { len(relations)} for {self._instance_name}")
+        
         for relation in relations:
             if all((v is not None for v in relation)):
                 sobj, oobj = relation
                 relation_list.append(RelationObject(sobj, oobj, self.target_class))
-        print (f"Relations Output Length:{ len(relation_list)} for {self._instance_name}")
+        
         return relation_list
 
 
@@ -922,12 +903,12 @@ class PropertyInstanceSpecification(SchemaMappingInstanceSpecification):
         # possibilities
         relations = list(product(*[subject_entities, literal_values]))
         relation_list = []
-        print (f"Property Input Length :{ len(relations)} for {self._instance_name}")
+        
         for relation in relations:
             if all((v is not None for v in relation)):
                 sobj, oobj = relation
                 relation_list.append(PropertyObject(sobj, oobj, self.target_class))
-        print (f"Property Output Length:{ len(relation_list)} for {self._instance_name}")
+        
         return relation_list
 
     def __repr__(self):
