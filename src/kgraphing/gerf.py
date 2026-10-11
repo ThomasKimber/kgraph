@@ -106,7 +106,7 @@ class ObservedEntity(GerfThing):
                     break
             if label is None:
                 label = self.identifier.n3(namespace_manager=self.gerf_object.total_graph.namespace_manager)
-            return f"<a href={str(self.identifier)}>{label}</a>"
+            return f"<a href=\"{str(self.identifier)}\">{label}</a>"
         elif isinstance(self.identifier, Literal):
             return str(self.identifier.toPython())
 
