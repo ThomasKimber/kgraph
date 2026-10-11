@@ -53,6 +53,9 @@ class ObservedRelationClass(GerfThing):
     def to_dict(self):
         return super().to_dict()
 
+    def html_stub(self):
+
+
 
 @dataclass(kw_only=True)
 class ObservedEntity(GerfThing):
@@ -86,6 +89,8 @@ class ObservedEntity(GerfThing):
     def to_dict(self):
         return {**super().to_dict(), **{"term": self.term}}
 
+    
+
     def html_stub(self):
         # Define a common, reusable header that can be emitted when requested that represents 
         # this thing - Often, it will be a simple <a href> element - but where the object is
@@ -113,6 +118,14 @@ class ObservedEntity(GerfThing):
     def to_html(self):
         rows = []
         for k, v_set in self.interactions.items():
+            if k in self.gerf_object.entities:
+                k_stub = self.gerf_object.entities.get(k, 
+                                                       ObservedEntity(identifier=None, 
+                                                                      order=None, 
+                                                                      gerf_object=self)
+                                                                      ).html_stub()
+            else:
+                k_stub=k
             for e, v in enumerate(v_set):
                 v_stub = self.gerf_object.entities.get(v, 
                                                        ObservedEntity(identifier=None, 
@@ -122,7 +135,7 @@ class ObservedEntity(GerfThing):
 
                 if e == 0:
                     rows.append(f"""<tr>
-                                    <td rowspan="{len(v_set)}">{str(k)}</td>
+                                    <td rowspan="{len(v_set)}">{str(k_stub)}</td>
                                     <td> {v_stub} </td>
                                 </tr>
                                 """)
