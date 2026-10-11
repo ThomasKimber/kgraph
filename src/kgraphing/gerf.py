@@ -132,7 +132,7 @@ class ObservedEntity(GerfThing):
                                 </tr>
                                 """)
 
-        return f"""<table>{"".join(rows)}</table>"""
+        return f"""<table><caption>{self.identifier}</caption>{"".join(rows)}</table>"""
 
 
 class Gerf:
