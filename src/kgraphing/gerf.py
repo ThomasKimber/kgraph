@@ -6,6 +6,7 @@ from dataclasses import dataclass, asdict, field
 import json
 import uuid
 import os
+import html
 
 from xml.etree import ElementTree as ET
 from urllib.parse import urldefrag
@@ -105,7 +106,7 @@ class ObservedEntity(GerfThing):
                     label = next(iter(s))
                     break
             if label is None:
-                label = self.identifier.n3(namespace_manager=self.gerf_object.total_graph.namespace_manager)
+                label = html.escape(self.identifier.n3(namespace_manager=self.gerf_object.total_graph.namespace_manager))
             return f"<a href=\"{str(self.identifier)}\">{label}</a>"
         elif isinstance(self.identifier, Literal):
             return str(self.identifier.toPython())
