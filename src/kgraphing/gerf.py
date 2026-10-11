@@ -53,10 +53,6 @@ class ObservedRelationClass(GerfThing):
     def to_dict(self):
         return super().to_dict()
 
-    def html_stub(self):
-
-
-
 @dataclass(kw_only=True)
 class ObservedEntity(GerfThing):
     """The ObservedEntity class collates information about
