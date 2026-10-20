@@ -27,7 +27,7 @@ with resources.as_file(
 # is openend as an rdflib-Graph object, to which are bound core ontology
 # namespaces to the graph's namespace manager.
 KGNAM = Namespace("https://kgraph.foo/onto/kgnam#")
-KGNAM_G = rdflibGraph()
+KGNAM_G = rdflibGraph(store="Oxigraph")
 
 with resources.as_file(
     resources.files(ontologies) / os.path.normpath("kgnam.owl")
@@ -35,7 +35,7 @@ with resources.as_file(
     KGNAM_G.parse(kgnam_owl, format="xml")
     KGNAM_G.bind("KGNAM", KGNAM.title.toPython())
 
-KGNAM_SHAPES_G = rdflibGraph()
+KGNAM_SHAPES_G = rdflibGraph(store="Oxigraph")
 with resources.as_file(
     resources.files(shapes) / os.path.normpath("kgnam_shacl.ttl")
 ) as kgnam_shapes:

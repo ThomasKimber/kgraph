@@ -86,7 +86,7 @@ class NamedGraphMetaData(ModifiableData):
                 modified_triple,
             ]
         )
-        g = Graph()
+        g = Graph(store="Oxigraph")
         g.bind("dcterms", DCTERMS)
         g.bind("dcat", DCAT)
         print(triple_list)

@@ -4,7 +4,7 @@ from typing import Optional
 from collections.abc import Callable
 from networkx import MultiDiGraph
 
-from rdflib import Graph, Literal, URIRef, BNode
+from rdflib import Literal, URIRef, BNode
 from rdflib.namespace import RDF, RDFS
 
 from kgraphing.gerf import Gerf, ObservedEntity, ObservedRelationClass

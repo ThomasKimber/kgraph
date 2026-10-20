@@ -185,7 +185,7 @@ class Gerf:
     def from_file(cls, file_path : str, cache : OntologyCache)->Self:
         declared_namespaces = Gerf.get_xml_namespaces(file_path)
         print(f"Declared Namespaces={declared_namespaces}")
-        g = Graph()
+        g = Graph(store="Oxigraph")
         g.parse(file_path)
         # Find the URI of the default namespace
         try:

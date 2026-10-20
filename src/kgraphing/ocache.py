@@ -119,7 +119,7 @@ class OntologyCache:
         overwrite: bool = False,
         alias: Optional[str] = None,
     ):
-        o_graph = Graph()
+        o_graph = Graph(store="Oxigraph")
         if alias is not None:
             ontology_location = alias
         else:
