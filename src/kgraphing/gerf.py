@@ -168,9 +168,9 @@ class Gerf:
 
     def __init__(self, g: Graph, cache: OntologyCache):
         self.source_graph=Gerf.copy_graph(g) # Store a copy of the original graph used to instantiate the object
-        self.ontology_graph=Graph()
-        self.inferred_graph=Graph()
-        self.total_graph=Graph()
+        self.ontology_graph=Graph(store="Oxigraph")
+        self.inferred_graph=Graph(store="Oxigraph")
+        self.total_graph=Graph(store="Oxigraph")
         self.relations = (
             {}
         )  # A dictionary keyed on predicates - provides graph-level meta-data over the observed usage of the predicate
