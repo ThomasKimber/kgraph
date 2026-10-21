@@ -4,6 +4,7 @@ current_dir = Path(__file__).parent
 
 from rdflib import Graph, Literal, URIRef
 from rdflib.namespace import SKOS, RDF, RDFS
+from rdflib.query import Result
 from pyshacl import validate
 
 import pytest
@@ -202,7 +203,7 @@ def test_execute_prepared_query(toy_graph):
         """SELECT ?s ?p ?o WHERE { ?s ?p ?o. }""",
         """Select everything from the graph""",
         {},
-        None
+        {'ex':'http://kgraph.foo.bar#example1'}
     )
     results = pq.execute(toy_graph,{})
     assert isinstance(results, list)
@@ -212,7 +213,7 @@ def test_execute_prepared_query(toy_graph):
 
 def test_execute_prepared_query_with_bindings(toy_graph):
     pq = rdfquery.QueryAPI(
-        """SELECT ?s ?p ?o WHERE { ?s ?p ?o. }""",
+        """SELECT ?s ?p ?o ?l WHERE { ?s ?p ?o. OPTIONAL { ?s rdfs:label ?l.}}""",
         """Select everything from the graph""",
         {"s" : URIRef},
         None
@@ -220,8 +221,16 @@ def test_execute_prepared_query_with_bindings(toy_graph):
     results = pq.execute(toy_graph,{}) # execute with no bindings
     bindings={"s" : URIRef('http://kgraph.foo.bar#example1')}
     binding_test = pq.validate_bindings(bindings)
+    bad_bindings_1 = {"s" : "test-not-uri"}
+    bad_bindings_2 = {"q" : "test-no-matching-binding-keys"}
+    binding_test_1 = pq.validate_bindings(bad_bindings_1)
+    binding_test_2 = pq.validate_bindings(bad_bindings_2)
     assert binding_test==(True, [])
+    assert binding_test_1[0]==False
+    assert binding_test_2[0]==False
     results = pq.execute(toy_graph,bindings) # execute with s bound
+    raw_results = pq.execute(toy_graph,bindings,raw_results=True) # execute with s bound
     assert isinstance(results, list)
-    assert len(results)==1
-    assert len(results[0])==3
+    assert isinstance(raw_results, Result)
+    assert len(results)==1 # Count return rows
+    assert len(results[0])==4 # Count return columns
