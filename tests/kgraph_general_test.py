@@ -14,12 +14,11 @@ import networkx as nx
 from importlib import resources
 
 from kgraphing import declarations
-from kgraphing.ingest import schemamapping
-from kgraphing.ingest import kgpipeline
+from kgraphing.ingest import schemamapping, kgpipeline
 from kgraphing import nxproperties
-from kgraphing.store import kgstore
-from kgraphing.store import metadata
+from kgraphing.store import kgstore, metadata, rdfquery
 from kgraphing import ontologies
+
 
 from kgraph_fixtures_test import (raw_data_df, 
                                   schema_mapping_object, 
@@ -189,3 +188,40 @@ def test_rdf2d_cache_enrichment(rdf2dict_of_serialised_graph):
     
 
 
+def test_create_prepared_query():
+    pq = rdfquery.QueryAPI(
+        """SELECT ?s ?p ?o WHERE { ?s ?p ?o. }""",
+        """Select everything from the graph""",
+        {},
+        None
+    )
+    assert [str(p) for p in pq.prepared_query.algebra['PV']]==['s','p','o']
+
+def test_execute_prepared_query(toy_graph):
+    pq = rdfquery.QueryAPI(
+        """SELECT ?s ?p ?o WHERE { ?s ?p ?o. }""",
+        """Select everything from the graph""",
+        {},
+        None
+    )
+    results = pq.execute(toy_graph,{})
+    assert isinstance(results, list)
+    assert len(results)==1
+    assert len(results[0])==3
+
+
+def test_execute_prepared_query_with_bindings(toy_graph):
+    pq = rdfquery.QueryAPI(
+        """SELECT ?s ?p ?o WHERE { ?s ?p ?o. }""",
+        """Select everything from the graph""",
+        {"s" : URIRef},
+        None
+    )
+    results = pq.execute(toy_graph,{}) # execute with no bindings
+    bindings={"s" : URIRef('http://kgraph.foo.bar#example1')}
+    binding_test = pq.validate_bindings(bindings)
+    assert binding_test==(True, [])
+    results = pq.execute(toy_graph,bindings) # execute with s bound
+    assert isinstance(results, list)
+    assert len(results)==1
+    assert len(results[0])==3

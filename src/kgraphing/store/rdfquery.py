@@ -8,7 +8,7 @@ from rdflib.query import Result
 def safe_value(value):
     if value is None:
         return None
-    elif isinstance(value, (URIRef, Literal, BNode)):
+    if isinstance(value, (URIRef, Literal, BNode)):
         return value.toPython()
 
 def results_to_resultlist(results):
@@ -18,8 +18,8 @@ def results_to_resultlist(results):
     return result_list
 
 class QueryAPI:
-    def __init__(self, 
-                 query : str, 
+    def __init__(self,
+                 query : str,
                  description : str,
                  parameters : dict[str,type],
                  init_namespace : Optional[dict[str,str]] = None,
@@ -31,7 +31,7 @@ class QueryAPI:
         self.parameters = parameters
         self.description = description
 
-    def validate_bindings(self, 
+    def validate_bindings(self,
                           parameter_bindings : dict[str,Any]) -> tuple[bool,list[str]]:
         # Perform type-checking of parameter_bindings against declared parameter specs
         errors=[]
@@ -44,9 +44,9 @@ class QueryAPI:
             return False, errors
         return True, errors
 
-    def execute(self, 
-            graph : Graph, 
-            parameter_bindings : dict[str,Any], 
+    def execute(self,
+            graph : Graph,
+            parameter_bindings : dict[str,Any],
             raw_results : Optional[bool]=None)->list | Result:
         results=graph.query(self.prepared_query, initBindings=parameter_bindings)
         if raw_results:
