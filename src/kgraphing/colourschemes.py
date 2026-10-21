@@ -1,7 +1,8 @@
+"""Bucket containing curated sets of colour schemes for display use"""
 from itertools import cycle
 
 colour_schemes = {"bold4" :  ["#ff3e3a", "#0496ff","#ffbc42","#17a600"],
-                  
+
                   "rich10" : [  "#001219", "#005f73", 
                                 "#0a9396", "#94d2bd", 
                                 "#e9d8a6", "#ee9b00", 
@@ -29,7 +30,7 @@ colour_schemes = {"bold4" :  ["#ff3e3a", "#0496ff","#ffbc42","#17a600"],
                 "dutch9" :  [   "#e60049", "#ffa300", "#e6d800", 
                                 "#50e991", "#00bfa0", "#b3d4ff",  "#0bb4ff", 
                                 "#dc0ab4", "#9b19f5"],
-                                
+
                 "nights9" :    ["#b30000", "#7c1158", 
                                 "#4421af", "#1a53ff",
                                 "#0d88e6", "#00b7c7", 
@@ -41,7 +42,7 @@ colour_schemes = {"bold4" :  ["#ff3e3a", "#0496ff","#ffbc42","#17a600"],
                                 "#ffb55a", "#ffee65", 
                                 "#beb9db", "#fdcce5", 
                                 "#8bd3c7"],
-                                
+
                             # bakerloo, central, circle, district
                 "tfl-tube" : [ "#B26300", "#dc241f", "#ffc80a", "#007D32",
                             # hammersmity-city, jubilee, metropolitan, northern
@@ -51,7 +52,7 @@ colour_schemes = {"bold4" :  ["#ff3e3a", "#0496ff","#ffbc42","#17a600"],
                             # bus, overground, dlr
                             "#dc241f","#fa7b05", "#00afad"
                 ]
-                
+
                             }
 
 def gen_cycle(colour_scheme):
@@ -63,9 +64,8 @@ def gen_cycle(colour_scheme):
     """
     if colour_scheme in colour_schemes:
         return cycle(colour_schemes[colour_scheme])
-    else:
-        raise ValueError(f"Colour scheme '{colour_scheme}' not found.")
-    
+    raise ValueError(f"Colour scheme '{colour_scheme}' not found.")
+
 def get_colour_scheme(colour_scheme):
     """
     Get the colour scheme as a list of colours.
@@ -75,6 +75,4 @@ def get_colour_scheme(colour_scheme):
     """
     if colour_scheme in colour_schemes:
         return colour_schemes[colour_scheme]
-    else:
-        raise ValueError(f"Colour scheme '{colour_scheme}' not found.")
-
+    raise ValueError(f"Colour scheme '{colour_scheme}' not found.")

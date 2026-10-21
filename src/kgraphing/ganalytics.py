@@ -1,3 +1,5 @@
+"""Utilities for performing analytics on a networkx graph"""
+
 import networkx as nx
 import numpy as np
 
@@ -7,7 +9,7 @@ def is_cyclic(g):
         return True
     except nx.NetworkXNoCycle:
         return False
-        
+
 def classify_graph(graph):
     edge_count = len(graph.edges())
     node_degrees = {n : (graph.in_degree(n), graph.out_degree(n)) for n in graph.nodes()}
@@ -15,13 +17,16 @@ def classify_graph(graph):
     graph_is_cyclic = is_cyclic(graph)
     graph_is_tree = nx.is_tree(graph)
     leaf_node_count = len([1 for d in node_degrees.values() if sum(d)==1])
-    graph_has_single_hub_node = (node_count>2 and (len([n for n,d in node_degrees.items() if sum(d)==edge_count])==1)) or \
-                                (node_count==2 and (len([n for n,d in node_degrees.items() if sum(d)==edge_count])==2))
+    graph_has_single_hub_node = (node_count>2 and \
+                                 (len([n for n,d in node_degrees.items() \
+                                       if sum(d)==edge_count])==1)) or \
+                                (node_count==2 and (len([n for n,d in node_degrees.items() \
+                                                         if sum(d)==edge_count])==2))
 
 
     source_nodes = set([n for n,d in node_degrees.items() if d[0]==0])
     sink_nodes = set([n for n,d in node_degrees.items() if d[1]==0])
-    
+
     transition_nodes = set([n for n,d in node_degrees.items() if (d[0]-d[1])==0]) # 'balanced' nodes
 
     return {
@@ -39,13 +44,18 @@ def classify_graph(graph):
 
 def calculate_metrics_over_induced_subgraphs(graph):
     subgraph_components = nx.weakly_connected_components(graph)
-    subgraphs = sorted([(nx.subgraph(graph, c), len(c)) for c in subgraph_components], key=lambda x : x[1], reverse=True)
+    subgraphs = sorted([(nx.subgraph(graph, c), len(c)) 
+                        for c in subgraph_components], key=lambda x : x[1], 
+                        reverse=True)
     sg_records=[]
     sg_nodes=[]
     for e, (sg, c) in enumerate(subgraphs):
         sg_records.append (classify_graph(sg))
         sg_nodes.append(set(sg.nodes()))
-    return {"population" : len(graph), "partitions" : len(subgraphs), "metrics" : sg_records, "subgraphs" : sg_nodes}
+    return {"population" : len(graph), 
+            "partitions" : len(subgraphs), 
+            "metrics" : sg_records, 
+            "subgraphs" : sg_nodes}
 
 def summarise_metrics_records(metrics_record):
     pop=metrics_record['population']

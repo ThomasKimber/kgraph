@@ -86,8 +86,6 @@ class ObservedEntity(GerfThing):
     def to_dict(self):
         return {**super().to_dict(), **{"term": self.term}}
 
-    
-
     def html_stub(self):
         # Define a common, reusable header that can be emitted when requested that represents 
         # this thing - Often, it will be a simple <a href> element - but where the object is
@@ -167,17 +165,24 @@ class Gerf:
     """
 
     def __init__(self, g: Graph, cache: OntologyCache):
-        self.source_graph=Gerf.copy_graph(g) # Store a copy of the original graph used to instantiate the object
+        # Store a copy of the original graph used to instantiate the object
+        self.source_graph=Gerf.copy_graph(g) 
         self.ontology_graph=Graph(store="Oxigraph")
         self.inferred_graph=Graph(store="Oxigraph")
         self.total_graph=Graph(store="Oxigraph")
+        # A dictionary keyed on predicates - provides graph-level 
+        # meta-data over the observed usage of the predicate
         self.relations = (
             {}
-        )  # A dictionary keyed on predicates - provides graph-level meta-data over the observed usage of the predicate
+        )  
+        # A dictionary keyed on subject - this differs from the raw_graph_dict 
+        # in that it collects observations across the graph
+        # It might be worth stripping this out later, I'm not 
+        # 100% convinced this is doing anything meaningful that the 
+        # raw_graph_dict isn't
         self.entities = (
             {}
-        )  # A dictionary keyed on subject - this differs from the raw_graph_dict in that it collects observations across the graph
-        # It might be worth stripping this out later, I'm not 100% convinced this is doing anything meaningful that the raw_graph_dict isn't
+        )  
         self.ontology_cache = cache
         self.update(g, order=0)
 
@@ -192,7 +197,8 @@ class Gerf:
             default_uri = next(uri for prefix, uri in g.namespaces() if prefix == "")
             print(f"Default uri={default_uri}")
             # Find the named prefix (e.g., 'kgmod') that maps to the same URI as the default
-            preferred_prefix = next((prefix for prefix, uri in declared_namespaces.items() if str(uri) == str(default_uri) and prefix != ""), None)
+            preferred_prefix = next((prefix for prefix, uri in declared_namespaces.items() \
+                                     if str(uri) == str(default_uri) and prefix != ""), None)
             print(f"Preferred Prefix={preferred_prefix}")
             # Rebind the namespace to use the named prefix
             if preferred_prefix:
@@ -337,7 +343,8 @@ class Gerf:
         cache_ontologies = set(self.ontology_cache.registry)
         start_ontology_count = len(cache_ontologies)
         inferred_required_ontologies = self._infer_ontology_list()
-        # Simple placeholder - any standing aliases to be worked into the below dictionary construction
+        # Simple placeholder - any standing aliases to be worked 
+        # into the below dictionary construction
         cache_update_ontologies = {
             k: k for k in inferred_required_ontologies - cache_ontologies
         }
