@@ -18,7 +18,7 @@ def results_to_resultlist(results):
             result_list.append({str(c):safe_value(result[e]) for e,c in enumerate(results.vars)})
         return result_list
     elif results.type == 'CONSTRUCT':
-        for result in results.triples((None, None, None)):
+        for result in results.graph.triples((None, None, None)):
             result_list.append({"s" : result[0], "p" : result[1], "o" : result[2]})
         return result_list
 
