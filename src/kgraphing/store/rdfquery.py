@@ -19,6 +19,7 @@ def results_to_resultlist(results):
 
 class QueryAPI:
     def __init__(self,
+                 name : str,
                  query : str,
                  description : str,
                  parameters : dict[str,type],
@@ -29,6 +30,7 @@ class QueryAPI:
         else:
             self.prepared_query=prepareQuery(query, initNs=init_namespace)
         self.parameters = parameters
+        self.name = name
         self.description = description
 
     def validate_bindings(self,

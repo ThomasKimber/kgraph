@@ -191,6 +191,7 @@ def test_rdf2d_cache_enrichment(rdf2dict_of_serialised_graph):
 
 def test_create_prepared_query():
     pq = rdfquery.QueryAPI(
+        "test query",
         """SELECT ?s ?p ?o WHERE { ?s ?p ?o. }""",
         """Select everything from the graph""",
         {},
@@ -200,6 +201,7 @@ def test_create_prepared_query():
 
 def test_execute_prepared_query(toy_graph):
     pq = rdfquery.QueryAPI(
+        "test query",
         """SELECT ?s ?p ?o WHERE { ?s ?p ?o. }""",
         """Select everything from the graph""",
         {},
@@ -213,6 +215,7 @@ def test_execute_prepared_query(toy_graph):
 
 def test_execute_prepared_query_with_bindings(toy_graph):
     pq = rdfquery.QueryAPI(
+        "test query",
         """SELECT ?s ?p ?o ?l WHERE { ?s ?p ?o. OPTIONAL { ?s rdfs:label ?l.}}""",
         """Select everything from the graph""",
         {"s" : URIRef},

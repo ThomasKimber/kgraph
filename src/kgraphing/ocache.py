@@ -10,7 +10,7 @@ from rdflib.exceptions import ParserError
 from rdflib import Graph
 from urllib.parse import urlparse
 from urllib.error import HTTPError, URLError
-from importlib.resources import files, as_file
+from importlib.resources import files
 import shutil
 
 from kgraphing.ontologies import core
