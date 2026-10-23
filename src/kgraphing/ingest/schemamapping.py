@@ -293,7 +293,7 @@ class SchemaMapping:
         print("Objects, Unique Objects")
         print(len(triple_generating_objects), len(set(triple_generating_objects)))
 
-        return_graph = rdflibGraph(bind_namespaces="rdflib")
+        return_graph = rdflibGraph(bind_namespaces="rdflib", store="Oxigraph")
 
         ns_d = self.config.get("Namespaces", {})
         for ns_prefix, nsuri in ns_d.items():
@@ -315,7 +315,7 @@ class SchemaMapping:
 
     def _rdflib_graph_from_dataframe(self, dataframe) -> rdflibGraph:
         """Reads in a dataframe and converts it into an anonymous graph"""
-        g = rdflibGraph(bind_namespaces="rdflib")
+        g = rdflibGraph(bind_namespaces="rdflib", store="Oxigraph")
         g.bind("DATA", SchemaMapping.DATA)
         g.add((SchemaMapping.DATA.row, RDF.type, OWL.Class))
         g.add((SchemaMapping.DATA.row, RDFS.label, Literal("Row")))
@@ -662,7 +662,7 @@ class NamedObjectInstanceSpecification(SchemaMappingInstanceSpecification):
                             for n in cobject_names 
                             if entity_fqn_index.get(n) is not None]
 
-                temp_g = rdflibGraph()
+                temp_g = rdflibGraph(store="Oxigraph")
                 list_triples = Collection(temp_g, 
                                         URIRef(ass_head.uri), 
                                         object_list).graph.triples((None, None, None))
