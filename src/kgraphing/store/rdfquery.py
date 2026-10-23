@@ -56,7 +56,4 @@ class QueryAPI:
             parameter_bindings : dict[str,Any],
             raw_results : Optional[bool]=None)->list | Result:
         results=graph.query(self.prepared_query, initBindings=parameter_bindings)
-        if raw_results:
-            return results
-        return results_to_resultlist(results)
-
+        return results
