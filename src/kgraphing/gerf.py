@@ -364,7 +364,7 @@ class Gerf:
 
 
     def create_ontology_graph(self):
-        o_graph = Graph()
+        o_graph = Graph(store="Oxigraph")
         for o in self._infer_ontology_list():
             o_file = self.ontology_cache.registry.get(o)
             if o_file is not None:
@@ -374,7 +374,7 @@ class Gerf:
         return o_graph
 
     def perform_inference_closure(self):
-        total_graph_copy = Graph()
+        total_graph_copy = Graph(store="Oxigraph")
 
         for triple in set(self.total_graph):
             total_graph_copy.add(triple)
