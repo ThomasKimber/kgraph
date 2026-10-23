@@ -73,7 +73,7 @@ class KGraphPipeline:
 
         if self.shacl_validations is not None:
             for sh_v_filename in self.shacl_validations:
-                s_g = Graph()
+                s_g = Graph(store="Oxigraph")
                 s_g.parse(sh_v_filename)
                 conforms, results_g, results_t = validate(
                     raw_g,

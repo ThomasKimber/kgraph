@@ -212,7 +212,7 @@ class NameMaster:
     def remaster_graph(self, graph):
         """Given an rdflib graph, remaster the URIs of named entities
         according to the master database."""
-        remastered_graph = Graph()
+        remastered_graph = Graph(store="Oxigraph")
         for ns_prefix, namespace in graph.namespaces():
             remastered_graph.bind(ns_prefix, namespace)
 
