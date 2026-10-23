@@ -94,6 +94,7 @@ class KGraphPipeline:
             print("SHACL validation fail! - see shacl_validation_results for details")
 
         master_graph = self.namemaster.master_graph(raw_g)
+        print(master_graph.store)
         return master_graph
 
     @staticmethod

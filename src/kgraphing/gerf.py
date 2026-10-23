@@ -357,7 +357,9 @@ class Gerf:
             print("No new ontologies added.")
 
     def update_total_graph(self):
-        self.total_graph = self.source_graph + self.ontology_graph + self.inferred_graph
+        self.total_graph += self.source_graph 
+        self.total_graph +=  self.ontology_graph 
+        self.total_graph += self.inferred_graph
         for ns in list(self.source_graph.namespaces()) + list(self.ontology_graph.namespaces()):
             if ns not in self.total_graph.namespaces():
                 self.total_graph.bind(*ns)
