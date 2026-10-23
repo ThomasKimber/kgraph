@@ -53,7 +53,6 @@ class QueryAPI:
 
     def execute(self,
             graph : Graph,
-            parameter_bindings : dict[str,Any],
-            raw_results : Optional[bool]=None)->list | Result:
+            parameter_bindings : dict[str,Any])-> Result:
         results=graph.query(self.prepared_query, initBindings=parameter_bindings)
         return results

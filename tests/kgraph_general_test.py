@@ -5,6 +5,7 @@ current_dir = Path(__file__).parent
 from rdflib import Graph, Literal, URIRef
 from rdflib.namespace import SKOS, RDF, RDFS
 from rdflib.query import Result
+from rdflib.plugins.sparql.processor import SPARQLResult
 from pyshacl import validate
 
 import pytest
@@ -50,7 +51,7 @@ def test_serialised_concept_count(serialised_graph):
     ]
 
     assert len(extracted_concept_names) == 32
-    assert sorted(extracted_concept_names) == [Literal(n) 
+    assert sorted([n.toPython() for n in extracted_concept_names]) == [n 
                                        for n in ['Vocabularies.Test.TestAlphabetVocab.Apple',
                                                  'Vocabularies.TestAlphabetVocab.Animal', 'Vocabularies.TestAlphabetVocab.Apple',
                                                  'Vocabularies.TestAlphabetVocab.Artifact',
@@ -207,7 +208,7 @@ def test_execute_prepared_query(toy_graph):
         {},
         {'ex':'http://kgraph.foo.bar#example1'}
     )
-    results = pq.execute(toy_graph,{})
+    results = rdfquery.results_to_resultlist(pq.execute(toy_graph,{}))
     assert isinstance(results, list)
     assert len(results)==1
     assert len(results[0])==3
@@ -231,9 +232,9 @@ def test_execute_prepared_query_with_bindings(toy_graph):
     assert binding_test==(True, [])
     assert binding_test_1[0]==False
     assert binding_test_2[0]==False
-    results = pq.execute(toy_graph,bindings) # execute with s bound
-    raw_results = pq.execute(toy_graph,bindings,raw_results=True) # execute with s bound
+    results = rdfquery.results_to_resultlist(pq.execute(toy_graph,bindings)) # execute with s bound
+    raw_results = pq.execute(toy_graph,bindings) # execute with s bound
     assert isinstance(results, list)
-    assert isinstance(raw_results, Result)
+    assert isinstance(raw_results, Result) or isinstance(raw_results, SPARQLResult)
     assert len(results)==1 # Count return rows
     assert len(results[0])==4 # Count return columns
