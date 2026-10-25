@@ -376,12 +376,12 @@ class Gerf:
         return o_graph
 
     def perform_inference_closure(self):
-        total_graph_copy = Graph(store="Oxigraph")
+        source_graph_copy = Graph(store="Oxigraph")
 
-        for triple in set(self.total_graph):
-            total_graph_copy.add(triple)
-        DeductiveClosure(RDFS_Semantics).expand(total_graph_copy)
-        self.inferred_graph = self.inferred_graph + (total_graph_copy-self.total_graph)
+        for triple in set(self.source_graph):
+            source_graph_copy.add(triple)
+        DeductiveClosure(RDFS_Semantics).expand(source_graph_copy)
+        self.inferred_graph += (source_graph_copy-self.source_graph)
         print(f"Inferred {len(self.inferred_graph)} new triples")
         self.update(self.inferred_graph, order=99)
 
@@ -411,6 +411,11 @@ class Gerf:
         print(f"Processed {triple_count} triple{plural}.")
 
     def enrich_metadata(self):
+        """Cycle over the ontology graph, populating entities with values
+        fetched from ontologies - where ontologies themselves have externally
+        referenced meta-data, seek to repopulate the ontology graph with any
+        new ontology definitions.
+        Continue until all fetchable definitions are returned."""
         delta = -1
         n = 0
         ents_pending_metadata = self.get_entities_pending_metadata()
