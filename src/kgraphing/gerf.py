@@ -378,6 +378,19 @@ class Gerf:
         
         return o_graph
 
+class StrictLiteralRDFSSemantics(RDFS_Semantics):
+    @staticmethod
+    def _literals_same_as(lt1: Literal, lt2: Literal) -> bool:
+        # Treat literals as identical only when they are the same RDF term:
+        # identical datatype, language tag, and lexical form.
+        if lt1.datatype != lt2.datatype:
+            return False
+
+        if lt1.language != lt2.language:
+            return False
+
+        return lt1.lexical_or_value == lt2.lexical_or_value
+
     def perform_inference_closure(self):
         # NB RDFLIB Graph is more lenient, so internally, only use a straight Graph here
         source_graph_copy = Graph()
@@ -385,7 +398,7 @@ class Gerf:
         for triple in set(self.source_graph):
             if isinstance(triple[0], (URIRef, BNode)):
                 source_graph_copy.add(triple)
-        DeductiveClosure(RDFS_Semantics, improved_datatypes=True).expand(source_graph_copy)
+        DeductiveClosure(StrictLiteralRDFSSemantics, improved_datatypes=True).expand(source_graph_copy)
         delta_graph = Graph(store="Oxigraph")
         for triple in source_graph_copy:
             if isinstance(triple[0], (URIRef, BNode)):
