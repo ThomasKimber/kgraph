@@ -385,7 +385,7 @@ class Gerf:
         for triple in set(self.source_graph):
             if isinstance(triple[0], (URIRef, BNode)):
                 source_graph_copy.add(triple)
-        DeductiveClosure(RDFS_Semantics, improved_datatypes=False).expand(source_graph_copy)
+        DeductiveClosure(RDFS_Semantics, improved_datatypes=True).expand(source_graph_copy)
         delta_graph = Graph(store="Oxigraph")
         for triple in source_graph_copy:
             if isinstance(triple[0], (URIRef, BNode)):
