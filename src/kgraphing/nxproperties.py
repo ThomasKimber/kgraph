@@ -35,7 +35,7 @@ def decorator_function_template(
     id: Hashable,
     data: dict[str, Any],
     classification_function: Callable,
-    classification_mapping: dict[str, dict[str, Any]],
+    classification_mapping: dict[str|frozenset, dict[str, Any]],
 ) -> dict[str, Any]:
     key = classification_function(id, data)
     mapping = classification_mapping.get(key, {})
@@ -45,7 +45,7 @@ def decorator_function_template(
 def decorate_networkx_nodes_with_function(
     nx_g: NXGraph,
     classification_function: Callable,
-    classification_mapping: dict[str, dict[str, Any]],
+    classification_mapping: dict[str|frozenset, dict[str, Any]],
 ) -> NXGraph:
     """Given a function whose parameters accept a node name, and a dictionary of attributes,
     and whose return type is a dict, cycle over the available nodes in the graph
@@ -72,7 +72,7 @@ def decorate_networkx_nodes_with_function(
 def decorate_networkx_edges_with_function(
     nx_g: NXGraph,
     classification_function: Callable,
-    classification_mapping: dict[str, dict[str, Any]],
+    classification_mapping: dict[str|frozenset, dict[str, Any]],
 ) -> NXGraph:
     """Given a function whose parameters accept an edge name, and a dictionary of attributes,
     and whose return type is a dict, cycle over the available nodes in the graph
