@@ -379,7 +379,8 @@ class Gerf:
         source_graph_copy = Graph(store="Oxigraph")
 
         for triple in set(self.source_graph):
-            source_graph_copy.add(triple)
+            if isinstance(triple[0], (URIRef, BNode)):
+                source_graph_copy.add(triple)
         DeductiveClosure(RDFS_Semantics).expand(source_graph_copy)
         self.inferred_graph += (source_graph_copy-self.source_graph)
         print(f"Inferred {len(self.inferred_graph)} new triples")
