@@ -145,15 +145,7 @@ class ObservedEntity(GerfThing):
 class StrictLiteralRDFSSemantics(RDFS_Semantics):
     @staticmethod
     def _literals_same_as(lt1: Literal, lt2: Literal) -> bool:
-        # Treat literals as identical only when they are the same RDF term:
-        # identical datatype, language tag, and lexical form.
-        if lt1.datatype != lt2.datatype:
-            return False
-
-        if lt1.language != lt2.language:
-            return False
-
-        return lt1.lexical_or_value == lt2.lexical_or_value
+        return lt1.n3() == lt2.n3()
 
 class Gerf:
     """The Gerf class translates an rdflib Graph object
