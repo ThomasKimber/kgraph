@@ -142,6 +142,18 @@ class ObservedEntity(GerfThing):
 
         return f"""<table><caption>{self.identifier}</caption>{"".join(rows)}</table>"""
 
+class StrictLiteralRDFSSemantics(RDFS_Semantics):
+    @staticmethod
+    def _literals_same_as(lt1: Literal, lt2: Literal) -> bool:
+        # Treat literals as identical only when they are the same RDF term:
+        # identical datatype, language tag, and lexical form.
+        if lt1.datatype != lt2.datatype:
+            return False
+
+        if lt1.language != lt2.language:
+            return False
+
+        return lt1.lexical_or_value == lt2.lexical_or_value
 
 class Gerf:
     """The Gerf class translates an rdflib Graph object
@@ -378,18 +390,7 @@ class Gerf:
         
         return o_graph
 
-class StrictLiteralRDFSSemantics(RDFS_Semantics):
-    @staticmethod
-    def _literals_same_as(lt1: Literal, lt2: Literal) -> bool:
-        # Treat literals as identical only when they are the same RDF term:
-        # identical datatype, language tag, and lexical form.
-        if lt1.datatype != lt2.datatype:
-            return False
 
-        if lt1.language != lt2.language:
-            return False
-
-        return lt1.lexical_or_value == lt2.lexical_or_value
 
     def perform_inference_closure(self):
         # NB RDFLIB Graph is more lenient, so internally, only use a straight Graph here
