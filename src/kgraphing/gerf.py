@@ -371,6 +371,9 @@ class Gerf:
             o_file = self.ontology_cache.registry.get(o)
             if o_file is not None:
                 o_graph.parse(os.path.join(self.ontology_cache.cache_directory, o_file))
+                print(len(o_graph))
+            else:
+                print(f"{o_file} not identified as a file!")
         self.ontology_graph = o_graph
         
         return o_graph
