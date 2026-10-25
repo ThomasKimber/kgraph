@@ -386,8 +386,8 @@ class Gerf:
         delta_graph = Graph(store="Oxigraph")
         for triple in source_graph_copy:
             if isinstance(triple[0], (URIRef, BNode)):
-                source_graph_copy.add(triple)
-        self.inferred_graph += (source_graph_copy-self.source_graph)
+                delta_graph.add(triple)
+        self.inferred_graph += (delta_graph-self.source_graph)
         print(f"Inferred {len(self.inferred_graph)} new triples")
         self.update(self.inferred_graph, order=99)
 
