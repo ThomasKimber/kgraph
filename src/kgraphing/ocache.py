@@ -1,6 +1,6 @@
 from typing import Optional, Self
 import os
-from pathlib import Path
+from pathlib import Path, PosixPath
 import uuid
 import json
 from send2trash import send2trash
@@ -131,7 +131,7 @@ class OntologyCache:
                 if overwrite and ontology_url in self.registry:
                     serial_filename = self.registry[ontology_url]
                 else:
-                    if alias is None or is_remote_url(alias):
+                    if alias is None or (not isinstance(alias, (Path, PosixPath)) and is_remote_url(alias)):
                         # Where an ontology is looked up online, it should be serialised, but
                         # it's tricky to crib a proper filename from any given url, so generate
                         # a uuid-based filename that we can be fairly confident is unique. 
