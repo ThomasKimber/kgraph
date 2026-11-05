@@ -382,11 +382,10 @@ class Gerf:
         
         return o_graph
 
-
-
     def perform_inference_closure(self):
         # NB RDFLIB Graph is more lenient, so internally, only use a straight Graph here
-        source_graph_copy = Graph()
+        # Downside is that it's slow for large datasets, so revert to Oxigraph
+        source_graph_copy = Graph(store="Oxigraph")
 
         for triple in set(self.source_graph):
             if isinstance(triple[0], (URIRef, BNode)):
