@@ -4,6 +4,7 @@ from typing import Optional, Self, Any
 from collections.abc import Iterable, Iterator
 import re
 from rdflib.plugins.sparql import prepareQuery
+from rdflib.plugins.sparql.processor import SPARQLResult
 from rdflib import Graph, URIRef, Literal, BNode
 from rdflib.query import Result
 
@@ -22,15 +23,37 @@ def safe_value(value):
         return value.toPython()
 
 def results_to_resultlist(results):
+    batch_results=list()
+    is_batch=False
+    if isinstance(results, Iterator):
+        is_batch=True
+        for batch in results:
+            query_vars=batch.vars
+            batch_results.append(batch)
+            print(len(batch_results))
+    else:
+        batch_results=results
+
+
     result_list=[]
-    if results.type == 'SELECT':
-        for result in results:
-            result_list.append({str(c):safe_value(result[e]) for e,c in enumerate(results.vars)})
+    if isinstance(batch_results, SPARQLResult):
+        if batch_results.type == 'SELECT':
+            for result in batch_results:
+                result_list.append({str(c):safe_value(result[e]) for e,c in enumerate(batch_results.vars)})
+            return result_list
+        elif batch_results.type == 'CONSTRUCT':
+            for result in batch_results.graph.triples((None, None, None)):
+                result_list.append({"s" : result[0], "p" : result[1], "o" : result[2]})
+            return result_list
+    elif isinstance(batch_results, list) and is_batch:
+        for batch in batch_results:
+            for result in batch:
+                result_list.append({str(c):safe_value(result[e]) for e,c in enumerate(query_vars)})
         return result_list
-    elif results.type == 'CONSTRUCT':
-        for result in results.graph.triples((None, None, None)):
-            result_list.append({"s" : result[0], "p" : result[1], "o" : result[2]})
-        return result_list
+    else:
+        print(f"It was a {type(batch_results)} -> missed instance check")
+        return batch_results
+
 
 class QueryAPI:
     def __init__(self,
@@ -42,12 +65,16 @@ class QueryAPI:
                  batch_parameter: Optional[str] = None,
                  batch_size: int = 250,
                  ):
+
+        
         self.query_template = query
         
         if init_namespace is None:
-            self.prepared_query=prepareQuery(query)
+            self.prepared_query=prepareQuery(self._render_query(batch_flag=False, parameter=batch_parameter, values=None))
         else:
-            self.prepared_query=prepareQuery(query, initNs=init_namespace)
+            self.prepared_query=prepareQuery((self._render_query(batch_flag=False, parameter=batch_parameter, values=None)), 
+                                             initNs=init_namespace)
+        
         self.parameters = parameters
         self.init_namespace = init_namespace
         self.name = name
@@ -115,7 +142,8 @@ class QueryAPI:
         for start in range(0, len(values), self.batch_size):
             batch = values[start : start + self.batch_size]
 
-            sparql = self._render_batched_query(
+            sparql = self._render_query(
+                batch_flag=True,
                 parameter=parameter,
                 values=batch,
             )
@@ -128,16 +156,23 @@ class QueryAPI:
 
             yield graph.query(prepared_query)
 
-    def _render_batched_query(
+    def _render_query(
         self,
-        parameter: str,
-        values: list[Any],
+        batch_flag: bool=False,
+        parameter: str | None=None,
+        values: list[Any]| None=None,
     ) -> str:
+
         start_marker = BATCH_START.format(variable=parameter)
         end_marker = BATCH_END.format(variable=parameter)
 
         start_index = self.query_template.find(start_marker)
         end_index = self.query_template.find(end_marker)
+
+        print(start_index, end_index)
+
+        if start_index == -1 and end_index == -1:
+            return self.query_template
 
         if start_index == -1 or end_index == -1:
             raise ValueError(
@@ -147,10 +182,18 @@ class QueryAPI:
 
         end_index += len(end_marker)
 
-        replacement = self._format_values_clause(
-            parameter=parameter,
-            values=values,
+        if parameter is None or values is None or len(values)==0 or not batch_flag:
+            replacement=None   
+            return (
+                self.query_template[:start_index]
+                + self.query_template[end_index:]
         )
+
+        else:
+            replacement = self._format_values_clause(
+                parameter=parameter,
+                values=values,
+            )
 
         return (
             self.query_template[:start_index]

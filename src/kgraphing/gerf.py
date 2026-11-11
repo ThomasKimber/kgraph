@@ -23,6 +23,26 @@ from owlrl import DeductiveClosure, RDFS_Semantics
 from kgraphing.ocache import OntologyCache
 from kgraphing.declarations import KGNAM
 
+import logging
+from collections import Counter
+
+logger = logging.getLogger(__name__)
+
+class OxigraphSafeRDFSSemantics(RDFS_Semantics):
+    def store_triple(self, t) -> None:
+        subject, predicate, object_ = t
+
+        if not isinstance(subject, (URIRef, BNode)):
+            return
+
+        if not isinstance(predicate, (URIRef, BNode)):
+            return
+
+        if not isinstance(object_, (URIRef, BNode, Literal)):
+            return
+
+        super().store_triple(t)
+
 
 
 @dataclass(kw_only=True)
@@ -390,7 +410,10 @@ class Gerf:
         for triple in set(self.source_graph):
             if isinstance(triple[0], (URIRef, BNode)):
                 source_graph_copy.add(triple)
-        DeductiveClosure(StrictLiteralRDFSSemantics, improved_datatypes=True).expand(source_graph_copy)
+        #DeductiveClosure(StrictLiteralRDFSSemantics, improved_datatypes=True).expand(source_graph_copy)
+        DeductiveClosure(OxigraphSafeRDFSSemantics, 
+                         improved_datatypes=True).expand(source_graph_copy)
+                
         delta_graph = Graph(store="Oxigraph")
         for triple in source_graph_copy:
             if isinstance(triple[0], (URIRef, BNode)):

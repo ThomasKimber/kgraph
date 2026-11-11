@@ -22,8 +22,8 @@ class VisGerf:
     def gerf_to_base_nx(
             self,
             gerf_object : Gerf,
-            include_node_function : Optional[Callable],
-            include_edge_function : Optional[Callable],
+            include_node_function : Optional[Callable]=None, 
+            include_edge_function : Optional[Callable]=None, 
             node_properties_function : Optional[Callable]=None, 
             edge_properties_function : Optional[Callable]=None, 
             ) -> MultiDiGraph:

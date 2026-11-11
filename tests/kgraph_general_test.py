@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 current_dir = Path(__file__).parent
 
+from collections.abc import Iterable, Iterator
 from rdflib import Graph, Literal, URIRef
 from rdflib.namespace import SKOS, RDF, RDFS
 from rdflib.query import Result
@@ -20,6 +21,7 @@ from kgraphing.ingest import schemamapping, kgpipeline
 from kgraphing import nxproperties
 from kgraphing.store import kgstore, metadata, rdfquery
 from kgraphing import ontologies
+from kgraphing import visgerf
 
 
 from kgraph_fixtures_test import (raw_data_df, 
@@ -188,7 +190,10 @@ def test_rdf2d_cache_enrichment(rdf2dict_of_serialised_graph):
     assert len(rdf2dict_of_serialised_graph.entities)==299 or len(rdf2dict_of_serialised_graph.entities)==297
     assert len(rdf2dict_of_serialised_graph.relations)==23
     
-
+def test_rdf2d_perform_inference(rdf2dict_of_serialised_graph):
+    start_entity_count = len(rdf2dict_of_serialised_graph.entities)
+    rdf2dict_of_serialised_graph.perform_inference_closure()
+    assert len(rdf2dict_of_serialised_graph.entities) > start_entity_count
 
 def test_create_prepared_query():
     pq = rdfquery.QueryAPI(
@@ -238,3 +243,34 @@ def test_execute_prepared_query_with_bindings(toy_graph):
     assert isinstance(raw_results, Result) or isinstance(raw_results, SPARQLResult)
     assert len(results)==1 # Count return rows
     assert len(results[0])==4 # Count return columns
+
+
+def test_execute_prepared_batch_query_with_bindings(toy_graph):
+    pq = rdfquery.QueryAPI(
+        "test query",
+        """SELECT ?s ?p ?o ?l WHERE { 
+        # @BATCH(s)
+        VALUES ?s {
+        # @BATCH_VALUES(s)
+        }
+        # @END_BATCH(s)
+        ?s ?p ?o. 
+        OPTIONAL { ?s rdfs:label ?l.}}""",
+        """Select everything from the graph""",
+        {"s" : URIRef},
+        batch_parameter="s",
+        batch_size=5,
+        init_namespace=None
+    )
+    results = pq.execute_batched(toy_graph,{"s" : [URIRef('http://kgraph.foo.bar#example1')]}) # execute with batch injected bindings
+    assert isinstance(results, Iterator)
+    assert isinstance(next(results), SPARQLResult)
+
+def test_visgerf_from_gerf(rdf2dict_of_serialised_graph):
+    VG = visgerf.VisGerf(rdf2dict_of_serialised_graph)
+    assert isinstance(VG, visgerf.VisGerf)
+
+def test_visgerf_from_gerf_gerf_to_base(rdf2dict_of_serialised_graph):
+    VG = visgerf.VisGerf(rdf2dict_of_serialised_graph)
+    base = VG.gerf_to_base_nx(rdf2dict_of_serialised_graph.source_graph)
+    assert isinstance(base, nx.MultiDiGraph)

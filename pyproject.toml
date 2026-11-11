@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "kgraphing"
-version = "0.0.2"
+version = "0.0.3"
 description = "A collection of utilities for working with knowledge graphs."
 requires-python = ">=3.12"
 readme = "README.md"
